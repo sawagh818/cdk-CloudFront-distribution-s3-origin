@@ -5,32 +5,68 @@ Here’s a simple explanation of the CloudFront distribution with an S3 bucket a
 
 ![image](https://github.com/user-attachments/assets/452e8336-a4ca-45dd-a110-cea3dc0ecf13)
 
+🎯 Objective
+To configure and deploy an Amazon CloudFront distribution with an Amazon S3 bucket as the origin using the CDK
 
+📝 Prerequisites
+AWS Account with admin permissions
+S3 bucket with static files or website content
+AWS CLI configured (optional for IaC)
+Node.js and AWS CDK installed (if using CDK)
 
-🧩 Components:
-Amazon S3 Bucket
+🔧 Step-by-Step Procedure
+✅ 1. Create or Use an Existing S3 Bucket
+aws s3 mb s3://my-static-site-bucket
+Upload content:
+aws s3 sync ./website s3://my-static-site-bucket
+(Optional) Enable static website hosting:
+aws s3 website s3://my-static-site-bucket/ --index-document index.html
 
-Stores static content: HTML, CSS, JS, images, videos, etc.
+✅ 2. Set Permissions (Public or via OAC/OAI)
+Using Origin Access Control (Recommended):
+Go to S3 → Permissions → Block Public Access → Turn off
+Create an OAC/OAI in CloudFront and attach it
+Update the S3 bucket policy to allow CloudFront access
 
-Must be public or accessed via Origin Access Control (OAC) or Origin Access Identity (OAI).
+✅ 3. Create CloudFront Distribution
+🖥️ Option A: Using AWS Console
+Go to CloudFront → Create Distribution
+Set Origin domain to your S3 bucket
+Viewer protocol policy: Redirect HTTP to HTTPS
+Optional: Enable caching, logging, WAF, etc.
 
-Amazon CloudFront Distribution
+Click Create Distribution
 
-Acts as a content delivery network (CDN).
+💻 Using AWS CDK (TypeScript)
 
-Caches content at edge locations for fast delivery.
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 
-Uses the S3 bucket as the origin to pull content.
+const bucket = new s3.Bucket(this, 'SiteBucket', {
+  removalPolicy: RemovalPolicy.DESTROY,
+  autoDeleteObjects: true,
+});
 
-Client (User Browser)
+const distribution = new cloudfront.Distribution(this, 'MyDistribution', {
+  defaultBehavior: {
+    origin: new origins.S3Origin(bucket),
+    viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+  },
+});
 
-Makes a request to the CloudFront URL.
+Enter the TypeScript/ directory, install the dependencies, deploy the CDK stack.
 
-CloudFront serves cached content or fetches from S3 if not cached.
+cd TypeScript
+npm install
+cdk synth
+cdk bootstrap aws://<YOUR_AWSCN_ACCOUNT_ID>/cn-north-1
+cdk deploy
 
-🔐 Optional Security Settings:
-Restrict Bucket Access: Using OAC or OAI to prevent direct S3 access.
+📡 Verification
+Visit the CloudFront domain name
+Ensure it loads your S3 content
+Try accessing via HTTP → It should redirect to HTTPS
 
-HTTPS: Enforce secure communication.
-
-Signed URLs/Cookies: For restricted/private content access.
+🧹 Cleanup (Optional)
+To delete the deployed resources, run the cdk destroy command from the stack directory.
