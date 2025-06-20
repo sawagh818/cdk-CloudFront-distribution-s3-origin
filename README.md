@@ -6,15 +6,18 @@ Here’s a simple explanation of the CloudFront distribution with an S3 bucket a
 ![image](https://github.com/user-attachments/assets/452e8336-a4ca-45dd-a110-cea3dc0ecf13)
 
 🎯 Objective
+
 To configure and deploy an Amazon CloudFront distribution with an Amazon S3 bucket as the origin using the CDK
 
 📝 Prerequisites
+
 AWS Account with admin permissions
 S3 bucket with static files or website content
 AWS CLI configured (optional for IaC)
 Node.js and AWS CDK installed (if using CDK)
 
 🔧 Step-by-Step Procedure
+
 ✅ 1. Create or Use an Existing S3 Bucket
 aws s3 mb s3://my-static-site-bucket
 Upload content:
@@ -64,9 +67,11 @@ cdk bootstrap aws://<YOUR_AWSCN_ACCOUNT_ID>/cn-north-1
 cdk deploy
 
 📡 Verification
+
 Visit the CloudFront domain name
 Ensure it loads your S3 content
 Try accessing via HTTP → It should redirect to HTTPS
 
 🧹 Cleanup (Optional)
+
 To delete the deployed resources, run the cdk destroy command from the stack directory.
